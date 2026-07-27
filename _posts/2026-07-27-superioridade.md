@@ -8,7 +8,8 @@ description: A diferença entre significância estatística e prática
 
 Uma nova droga, uma nova metodologia, ou uma nova alocação da carteira supera os resultados da antiga? Essa troca é significativa de maneira estatística e prática? Esse tipo de pergunta é respondida por teste de hipóteses de superioridade. O nome é majoritariamente usada na indústria regulatória, mas sua aplicação pode abranger todos os cenários nos quais dados são usados para tomar decisões. O teste de superioridade é simples e é geralmente ensinado como um teste de hipótese unilateral, porém raros cursos - inclusive de graduação - tocam no ponto de significância prática. Se estivermos mensurando o efeito de uma intervenção qualquer em uma média ($\mu$) podemos declarar nossas hipóteses como:
 
-$H_0: \mu_T \leq \mu_C$ vs $H_1: \mu_T> \mu_C$
+$H_0: \mu_T \leq \mu_C$ vs
+$$H_1: \mu_T> \mu_C$$
 
 Em que $\mu_T$ é a média após a aplicação da intervenção e $\mu_C$ é a média antes dessa intervenção ser aplicada, ou a média em um grupo controle.  Se rejeitarmos a hipótese nula, concluímos que a solução é estatisticamente mais eficaz que o controle, ou seja, ao nível de significância $\alpha$, o comportamento dos dados é extremamente impróvavel sob $H_0$. Caso contrário, a solução oferece resultados piores ou iguais ao controle. Com isso, respondemos parte da pergunta inicial, mas uma vez que essa intervenção oferece resultados superiores, estatisticamente, essa superioridade seria sentida na prática? 
 
