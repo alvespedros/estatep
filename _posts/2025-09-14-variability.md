@@ -2,7 +2,7 @@
 title: O analista é uma variável aleatória
 categories: [stats]
 tags: [stats]     # TAG names should always be lowercase
-description: copiado de um post meu do LinkedIn, porque texto nenhum merece morrer naquele lugar amaldiçoado
+description: Além da variabilidade dos dados, a conclusão de um experimento dependente também de seu analista.
 ---
 
 
