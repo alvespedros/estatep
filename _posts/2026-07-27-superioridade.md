@@ -1,0 +1,68 @@
+---
+title: Teste de superioridade
+categories: [estatistica_basica]
+tags: [pvalor, hipotese]     # TAG names should always be lowercase
+description: A diferença entre significância estatística e prática
+---
+
+
+Uma nova droga, uma nova metodologia, ou uma nova alocação da carteira supera os resultados da antiga? Essa troca é significativa de maneira estatística e prática? Esse tipo de pergunta é respondida por teste de hipóteses de superioridade. O nome é majoritariamente usada na indústria regulatória, mas sua aplicação pode abranger todos os cenários nos quais dados são usados para tomar decisões. O teste de superioridade é simples e é geralmente ensinado como um teste de hipótese unilateral, porém raros cursos - inclusive de graduação - tocam no ponto de significância prática. Se estivermos mensurando o efeito de uma intervenção qualquer em uma média ($\mu$) podemos declarar nossas hipóteses como:
+
+$H_0: \mu_T \leq \mu_C$ vs $H_1: \mu_T> \mu_C$
+
+Em que $\mu_T$ é a média após a aplicação da intervenção e $\mu_C$ é a média antes dessa intervenção ser aplicada, ou a média em um grupo controle.  Se rejeitarmos a hipótese nula, concluímos que a solução é estatisticamente mais eficaz que o controle, ou seja, ao nível de significância $\alpha$, o comportamento dos dados é extremamente impróvavel sob $H_0$. Caso contrário, a solução oferece resultados piores ou iguais ao controle. Com isso, respondemos parte da pergunta inicial, mas uma vez que essa intervenção oferece resultados superiores, estatisticamente, essa superioridade seria sentida na prática? 
+
+No mundo da saúde, perguntamo-nos se a solução é clinicamente significativa ( Ela afeta o prognóstico do paciente? Diminui sua dor de maneira sensível? ). Em cenários de teste AB, perguntamo-nos acerca de significância prática ( Houve aumento de mais de 10% na retenção de clientes no site? As vendas aumentaram em mais de 5%?). Para responder essas perguntas podemos simplesmente reestruturar as hipóteses da seguinte forma:
+
+$H_0: \mu_T - \mu_C \leq \delta$ vs $H_1: \mu_T - \mu_C > \delta$
+
+Em que $\delta$ é o limite de superioridade, indicando que apenas vamos rejeitar a hipótese nula se nossa solução oferecer uma melhora de, no mínimo $\delta$. Veja que a primeira hipótese é um caso específico da segunda, basta tomarmos $\delta = 0$
+
+## Na prática
+
+Uma sucursal que vende papel encontrou um excendente da verba anual e precisa de alguma forma gastar esse dinheiro. Ignorando todos os pedidos racionais de seus empregados (novas cadeiras ergonômicas, uma nova impressora ou uma noite de pizza), o chefe decide conduzir um estudo de superioridade. Depois de se emocionar com o filme Clube de Vendas Dallas, sua hipótese é de que se os vendedores passarem a apelar para o lado sentimental dos clientes (sabe-se lá como), as vendas vão aumentar. O setor de contabilidade calcula que, para que essa alteração valha a pena, deve haver um aumento de pelo menos 10% a mais de centenas de folhas de papel vendidas por mês. Baseados em dados históricos que o mesmo setor de contabilidade lhe ofereceu - em páginas engorduradas e com uma mancha de café enorme que as tornam quase ilegíveis - os funcionários vendem em média 5 centenas de folhas de papel por dia, com um desvio padrão de 1 centena, o que implica que é necessário um aumento de 1 centena (10% * 5 ) para que a metodologia seja viável. Você formula as seguinte hipóteses:
+
+$H_0: \mu_T - \mu_C \leq 1$$ vs $$H_1: \mu_T - \mu_C > 1$
+
+Para fazer o cálculo amostral você precisaria estimar o desvio padrão conjunto entre os grupos que vai testar e o efeito estimado, mas como não tem essas informações, considera uma abordagem conservadora dobrando o desvio padrão observado e o efeito de tratamento para 2.
+
+
+```
+library(GenTwoArmsTrialSize)
+
+
+getSizeMean(design = 'parallel',
+            test = 'superiority',
+            alpha = 0.05,
+            beta = 0.2,
+            k = 1,
+            delta = 1,
+            TTE = 2,
+            sigma = 2)
+```
+
+
+Considerando os dados histórios, você estima que demorará 2 semanas para atingir o tamanho amostral, então define (sem avisar os funcionários, para não enviesá-los) que vão passar duas semanas colhendo dados normalmente e, após uma notificação sua, duas semanas procurando se conectar intimamente com seus clientes.
+
+Ao final desse período, você recebe os dados por email e aplica um teste T-pareado. Lembrando que. so passar simplesmente os dados coletados no controle e na intervenção, estamos testando apenas a significância prática, com as primeiras hipóteses apresentadas acima.
+
+```
+library(dplyr)
+data <- data.frame(
+  vendas_controle = rgamma(96, shape = 5, rate = 5 ),
+  vendas_intervencao = rgamma(96, shape = 5, rate = 4 )
+)
+
+t.test(data$vendas_intervencao,
+       data$vendas_controle,
+       paired = T,
+       alternative = 'greater',
+       var.equal = F)
+```
+
+Ótimo, ao nível de significância de 5%, com os dados coletados, você rejeita a hipótese nula e a intervenção parece ter funcionado. Mas ela foi relevante? Podemos descobrir isso calculando o intervalo de confiança para a diferença entre intervenção e controle. Como nossa hipótese é unilateral, temos um IC = [0.17, Inf]. Como o limite inferior do IC é menor do que a margem de significância prática de 1, não podemos concluir que a intervenção é financeiramente viável. 
+
+Os funcionários te odeiam, o chefe te odeia, mas os dados não mentem (bom...na verdade... Ver seção a seguir).
+
+## Detalhes técnicos e omissões
+Nesse exemplo, não considerei quais vendedores foram responsáveis por cada observação, dos 96 dados colhidos eu posso ter um vendedor contribuindo com a maioria dos dados, o que pode dizer muito sobre a efetividade de um único funcionário. Mais, os vendedores comunicam-se entre si e existem vendedores consistentemente melhores do que os outros e isso não foi controlado de nenhuma forma. É natural esperar que os vendedores nas primeiras duas semanas do mês estejam mais descansados do que nas duas últimas e esse efeito temporal também não foi levado em consideração. Eu procurei aqui isolar apenas o tema de superioridade, porém é importante ter em mente que ele não existe em um vácuo e que o p-valor ou o intervalo de confiança só fazem sentido em um conjunto. Etapas como a análise exploratória, o teste de suposições e até análises de sensibilidade geral do modelo, não demonstradas nesse post, são extremamente relevantes e, ao final, são o que fazem um número qualquer entre zero e um poder ser interpretado como um p-valor.
